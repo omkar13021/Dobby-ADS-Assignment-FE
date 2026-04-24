@@ -1,70 +1,86 @@
-# Getting Started with Create React App
+# Folder Manager - Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React-based file management application with Google Drive-style navigation, built with Ant Design and Tailwind CSS.
+
+## Features
+
+- **Authentication**: Login, Signup with JWT-based authentication
+- **Folder Navigation**: Click-to-navigate folder structure (like Google Drive)
+- **Folder Management**: Create, rename, and delete folders
+- **Image Upload**: Upload images to folders with drag-and-drop support
+- **Breadcrumb Navigation**: Easy navigation with clickable breadcrumbs
+- **Protected Routes**: Secure dashboard with automatic session restoration
+- **Optimistic Updates**: Instant UI feedback before server confirmation
+
+## Tech Stack
+
+- **React 19** - UI Framework
+- **Ant Design 6** - UI Component Library
+- **Tailwind CSS 3** - Utility-first CSS
+- **Axios** - HTTP Client with interceptors
+- **React Router 6** - Client-side routing
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── Breadcrumb.jsx      # Navigation breadcrumb
+│   ├── CreateFolderModal.jsx # Modal for creating folders
+│   ├── FolderView.jsx      # Main folder navigation component
+│   ├── ProtectedRoute.jsx  # Auth-protected route wrapper
+│   └── UploadModal.jsx     # Image upload modal
+├── context/
+│   └── AuthContext.jsx     # Authentication state management
+├── pages/
+│   ├── Dashboard.jsx       # Main dashboard page
+│   ├── Login.jsx           # Login page
+│   └── Signup.jsx          # Registration page
+├── services/
+│   └── apiService.js       # API client with auth interceptors
+├── App.js                  # Main app with routing
+└── index.js                # Entry point
+```
+
+## Installation
+
+```bash
+npm install
+```
+
+## Environment Variables
+
+Create a `.env` file:
+
+```env
+REACT_APP_API_URL=http://localhost:5000
+```
 
 ## Available Scripts
 
-In the project directory, you can run:
-
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Runs the app in development mode at [http://localhost:3000](http://localhost:3000)
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds the app for production to the `build` folder
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `npm test`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Launches the test runner
 
-### `npm run eject`
+## API Integration
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+The frontend communicates with the backend through:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **Auth API**: `/api/auth/*` - Login, register, refresh token, logout
+- **Folder API**: `/api/folders/*` - CRUD operations for folders
+- **Image API**: `/api/images/*` - Upload and manage images
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Authentication Flow
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. User logs in → receives access token (in memory) + refresh token (HttpOnly cookie)
+2. Access token attached to all API requests via Axios interceptor
+3. On 401 (token expired) → automatic refresh using cookie
+4. On page reload → session restored via refresh token API
