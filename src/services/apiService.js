@@ -2,16 +2,70 @@ import axios from 'axios';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
+let accessToken = null;
+let refreshPromise = null;
+
+export const setAccessToken = (token) => {
+    accessToken = token;
+};
+
+export const getAccessToken = () => accessToken;
+
+export const clearAccessToken = () => {
+    accessToken = null;
+};
+
 const apiClient = axios.create({
     baseURL: API_BASE,
     headers: {
         'Content-Type': 'application/json'
+    },
+    withCredentials: true
+});
+
+apiClient.interceptors.request.use((config) => {
+    if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
     }
+    return config;
 });
 
 apiClient.interceptors.response.use(
     (response) => response.data,
-    (error) => {
+    async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && 
+            error.response?.data?.code === 'TOKEN_EXPIRED' && 
+            !originalRequest._retry) {
+            
+            originalRequest._retry = true;
+
+            if (!refreshPromise) {
+                refreshPromise = apiClient.post('/api/auth/refresh')
+                    .then((data) => {
+                        setAccessToken(data.accessToken);
+                        return data.accessToken;
+                    })
+                    .catch((err) => {
+                        clearAccessToken();
+                        window.dispatchEvent(new CustomEvent('auth:logout'));
+                        throw err;
+                    })
+                    .finally(() => {
+                        refreshPromise = null;
+                    });
+            }
+
+            try {
+                const newToken = await refreshPromise;
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                return apiClient(originalRequest);
+            } catch (err) {
+                return Promise.reject(err);
+            }
+        }
+
         const message = error.response?.data?.error || error.message || 'Request failed';
         return Promise.reject(new Error(message));
     }
@@ -41,7 +95,9 @@ const api = {
     auth: {
         register: (data) => apiClient.post('/api/auth/register', data),
         login: (data) => apiClient.post('/api/auth/login', data),
-        logout: () => apiClient.post('/api/auth/logout')
+        refresh: () => apiClient.post('/api/auth/refresh'),
+        logout: () => apiClient.post('/api/auth/logout'),
+        getMe: () => apiClient.get('/api/auth/me')
     },
     user: {
         getAll: () => apiClient.get('/api/users'),

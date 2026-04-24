@@ -6,10 +6,9 @@ const { Dragger } = Upload;
 
 const UploadModal = ({ 
     open, 
-    onCancel, 
-    onUpload, 
-    loading,
-    folderName 
+    onClose, 
+    onUpload,
+    loading 
 }) => {
     const [fileList, setFileList] = useState([]);
 
@@ -31,7 +30,7 @@ const UploadModal = ({
 
     const handleCancel = () => {
         setFileList([]);
-        onCancel();
+        onClose();
     };
 
     const uploadProps = {
@@ -46,7 +45,7 @@ const UploadModal = ({
 
     return (
         <Modal
-            title={`Upload Images to "${folderName || 'Folder'}"`}
+            title="Upload Images"
             open={open}
             onOk={handleUpload}
             onCancel={handleCancel}
