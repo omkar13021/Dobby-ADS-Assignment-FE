@@ -74,6 +74,9 @@ apiClient.interceptors.response.use(
 const api = {
     folder: {
         getTree: (userId) => apiClient.get('/api/folders', { params: { userId } }),
+        getContents: (userId, parentId) => apiClient.get('/api/folders', { 
+            params: { userId, parentId: parentId || '' } 
+        }),
         create: (name, parentId, userId) => apiClient.post('/api/folders', { name, parentId, userId }),
         rename: (folderId, name) => apiClient.put(`/api/folders/${folderId}`, { name }),
         delete: (folderId) => apiClient.delete(`/api/folders/${folderId}`),

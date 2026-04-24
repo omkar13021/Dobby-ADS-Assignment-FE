@@ -1,4 +1,4 @@
-import { Layout, Typography, Card, Button } from 'antd';
+import { Layout, Typography, Button } from 'antd';
 import { LogoutOutlined } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
 import FolderView from '../components/FolderView';
